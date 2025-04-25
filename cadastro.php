@@ -1,108 +1,173 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro de Alunos</title>
+    <title>Cadastro</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        form {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin: 10px 0 5px;
-        }
-        input, select {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-        }
-        button {
-            padding: 10px 15px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
+        body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: Arial, sans-serif;
+}
 
-        .container {
-            max-width: 600px;
-            margin: auto;
-            background-color: #f9f9f9;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
+.container {
+  display: flex;
+  height: 100vh;
+}
+
+.left-panel {
+  width: 35%; /* Menos da metade */
+  background-color: #2ecc71;
+  color: #fff;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.right-panel {
+  width: 65%;
+  background-color: #fff;
+  padding: 60px;
+}
+
+/* Estilos opcionais */
+.logo {
+  max-width: 300px;
+  margin-bottom: 20px;
+}
+
+.texto-info {
+  text-align: center;
+  font-size: 20px;
+  line-height: 1.5;
+}
+
+.seta {
+  position: absolute;
+  right: -20px;
+  top: 50%;
+  background-color: #4D9165;
+  color: #000;
+  border-radius: 50%;
+  padding: 10px 15px;
+  font-size: 20px;
+}
+
+input {
+    background-color: #F6F5F5;
+    border-width: 1px;
+    padding: 8px;
+    border-radius: 5px;
+}
+
+.box {
+    height: 50vh;
+    width: 100%;
+    max-width: 400px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    justify-content: left;
+    padding: 20px;
+    margin-top: 15%;
+    margin-left: 20%;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+}
+
+button {
+    background-color: #2ecc71;
+    border-radius: 5px;
+    border-width: 1px;
+    width: 40%;
+    padding: 8px;
+}
+
     </style>
 </head>
 <body>
     <div class="container">
-        <form action="cadastro.php" method="POST">
-            <label for="name">Nome Completo:</label>
-            <input type="text" id="name" name="name" required>
+    <div class="left-panel">
+        <img src="logo_Unitech.png" alt="Logo do Colégio UniTech" class="logo">
+        <p class="texto-info">
+        Preencha os campos ao lado para criar seu acesso como coordenador e integrar o novo sistema digital da escola!
+        </p>
+        <div class="seta">➜</div>
+    </div>
+    <div class="right-panel">
+        <!-- Aqui vai o formulário depois -->
+        <div class="box">
+            <h1>Cadastro</h1>
+            <p>Já tem uma conta? <a href="login.php">Entre aqui</a> </p>
+            <br>
+                <form method="POST">
+                    <label for="email">Email Institucional:</label>
+                    <input type="email" id="email" name="email" required>
 
-            <label for="rg">RG:</label>
-            <input type="text" id="rg" name="rg" required pattern="\d{6,8}[0-9Xx]">
+                    <label for="senha">Criar Senha:</label>
+                    <input type="password" id="senha" name="senha" required>
 
-            <label for="cpf">CPF:</label>
-            <input type="text" id="cpf" name="cpf" pattern="\d{11}" required>
+                    <label for="confirmarsenha">Confirmar a Senha:</label>
+                    <input type="password" id="confirmarsenha" name="confirmarsenha" required>
 
-            <label for="nascimento">Data de Nascimento:</label>
-            <input type="date" id="nascimento" name="nascimento" required>
+                    <button type="submit">Cadastrar</button>
+                </form>
+                <br>
+                <?php
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "cadastro_alunos";
 
-            <label for="sexo">Sexo:</label>
-            <select id="sexo" name="sexo" required>
-                <option value="">Selecione</option>
-                <option value="masculino">Masculino</option>
-                <option value="feminino">Feminino</option>
-                <option value="outro">Outro</option>
-            </select>
+$conexao = new mysqli($servername, $username, $password, $dbname);
 
-            <label for="responsavel">Responsável:</label>
-            <input type="text" id="responsavel" name="responsavel" required>
+if ($conexao->connect_error) {
+    die("Falha na conexão: " . $conexao->connect_error);
+}
 
-            <label for="estado">Estado do Aluno:</label>
-            <select id="estado" name="estado" required>
-                <option value="">Selecione</option>
-                <option value="ativo">Ativo</option>
-                <option value="inativo">Inativo</option>
-            </select>
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $email = $_POST['email'];
+    $senha = $_POST['senha'];
+    $senhaCriptografada = password_hash($senha, PASSWORD_DEFAULT);
 
-            <label for="foto">Foto do Aluno:</label>
-            <input type="file" id="foto" name="foto" accept="image/*" required>
+    // Verifica se o email já existe
+    $verifica = $conexao->prepare("SELECT email FROM contas WHERE email = ?");
+    $verifica->bind_param("s", $email);
+    $verifica->execute();
+    $verifica->store_result();
 
-            <label for="matricula">Matrícula:</label>
-            <input type="number" id="matricula" name="matricula" required>
+    if ($verifica->num_rows > 0) {
+        echo "Já existe uma conta cadastrada neste email!";
+    } else {
+        $stmt = $conexao->prepare("INSERT INTO contas (email, senha) VALUES (?, ?)");
+        $stmt->bind_param("ss", $email, $senhaCriptografada);
 
-            <label for="curso">Curso:</label>
-            <select id="curso" name="curso" required>
-                <option value="">Selecione</option>
-                <option value="curso1">Curso 1</option>
-                <option value="curso2">Curso 2</option>
-                <!-- teste -->
-            </select>
+        if ($stmt->execute()) {
+            echo "Cadastro realizado com sucesso!";
+        } else {
+            echo "Erro ao cadastrar: " . $stmt->error;
+        }
 
-            <label for="inicio">Início:</label>
-            <input type="date" id="inicio" name="inicio" required>
+        $stmt->close();
+    }
 
-            <label for="termino">Término:</label>
-            <input type="date" id="termino" name="termino" required>
-
-            <label for="turma">Turma:</label>
-            <input type="text" id="turma" name="turma" required>
-
-            <label for="periodo">Período:</label>
-            <input type="text" id="periodo" name="periodo" required>
-
-            <button type="submit">Cadastrar</button>
-        </form>
+    $verifica->close();
+    $conexao->close();
+}
+?>
+        </div>
+    </div>
     </div>
 </body>
 </html>

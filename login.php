@@ -108,7 +108,7 @@ button {
         <!-- Aqui vai o formulário depois -->
         <div class="box">
             <h1>Login</h1>
-            <p>Ainda não tem uma conta? <a href="index.php">Cadastre-se aqui</a> </p>
+            <p>Ainda não tem uma conta? <a href="cadastro.php">Cadastre-se aqui</a> </p>
             <br>
                 <form method="POST">
                     <label for="email">Email Institucional:</label>
@@ -119,49 +119,48 @@ button {
 
                     <button type="submit">Login</button>
                 </form>
-                <br>
                 <?php
-                $servername = "localhost";
-                $username = "root";
-                $password = "";
-                $dbname = "cadastro_alunos";
+                    $servername = "localhost";
+                    $username = "root";
+                    $password = "";
+                    $dbname = "cadastro_alunos";
 
-                $conexao = new mysqli($servername, $username, $password, $dbname);
+                    $conexao = new mysqli($servername, $username, $password, $dbname);
 
-                if ($conexao->connect_error) {
-                    die("Falha na conexão: " . $conexao->connect_error);
-                }
+                    if ($conexao->connect_error) {
+                        die("Falha na conexão: " . $conexao->connect_error);
+                    }
 
-                if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                    $email = $_POST['email'];
-                    $senha = $_POST['senha'];
-                    $senhaCriptografada = password_hash($senha, PASSWORD_DEFAULT);
+                    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+                        $email = $_POST['email'];
+                        $senha = $_POST['senha'];
 
-                    // Verifica se o email já existe
-                    $verifica = $conexao->prepare("SELECT email FROM contas WHERE email = ?");
-                    $verifica->bind_param("s", $email);
-                    $verifica->execute();
-                    $verifica->store_result();
+                        $stmt = $conexao->prepare("SELECT senha FROM contas WHERE email = ?");
+                        $stmt->bind_param("s", $email);
+                        $stmt->execute();
+                        $stmt->store_result();
 
-                    if ($verifica->num_rows > 0) {
-                        echo "Já existe uma conta cadastrada neste email!";
-                    } else {
-                        $stmt = $conexao->prepare("INSERT INTO contas (email, senha) VALUES (?, ?)");
-                        $stmt->bind_param("ss", $email, $senhaCriptografada);
+                        if ($stmt->num_rows > 0) {
+                            $stmt->bind_result($senhaHash);
+                            $stmt->fetch();
 
-                        if ($stmt->execute()) {
-                            echo "Cadastro realizado com sucesso!";
+                            if (password_verify($senha, $senhaHash)) {
+                                session_start();
+                                $_SESSION['email'] = $email;
+                                echo "Login realizado com sucesso!";
+                                header("Location: index.php");
+                            } else {
+                                echo "Senha incorreta!";
+                            }
                         } else {
-                            echo "Erro ao cadastrar: " . $stmt->error;
+                            echo "Email não encontrado!";
                         }
 
                         $stmt->close();
+                        $conexao->close();
                     }
+                    ?>
 
-                    $verifica->close();
-                    $conexao->close();
-                }
-                ?>
         </div>
     </div>
     </div>

@@ -37,7 +37,7 @@
         .container {
             display: flex;
             width: 80%;
-            height: 90vh;
+            height: 130vh;
             margin: auto;
             background-color: #f9f9f9;
             padding: 20px;
@@ -57,8 +57,8 @@
 
         .image-container {
             position: relative;
-            width: 250px;
-            height: 250px;
+            width: 180px;
+            height: 180px;
             margin-top: 10px;
         }
 

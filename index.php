@@ -1,3 +1,44 @@
+<?php
+// Incluir a conexão com o banco
+include('conexao.php');
+
+// Verificar se o formulário foi enviado
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Coletar os dados do formulário
+    $nome = $_POST['nome'];
+    $rg = $_POST['rg'];
+    $cpf = $_POST['cpf'];
+    $data_nascimento = $_POST['nascimento'];
+    $sexo = $_POST['sexo'];
+    $responsavel = $_POST['responsavel'];
+    $estado_aluno = $_POST['estado'];
+    $foto_perfil = $_FILES['foto']['name'] ?? null;  // Se foto não for enviada, ficará null
+    $matricula = $_POST['matricula'];
+    $curso = $_POST['curso'];
+    $inicio = $_POST['inicio'];
+    $termino = $_POST['termino'];
+    $nometurma = $_POST['turma'];
+    $tipo_ensino = $_POST['tipo_ensino'];
+    $periodo = $_POST['periodo'];
+
+    // Inserir aluno
+    $stmt = $conn->prepare("INSERT INTO alunos (matricula, nome, RG, CPF, foto_url, data_nascimento, sexo, responsavel, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("issssssss", $matricula, $nome, $rg, $cpf, $foto_perfil, $data_nascimento, $sexo, $responsavel, $estado_aluno);
+    $stmt->execute();
+
+    // Inserir turma
+    $stmt = $conn->prepare("INSERT INTO turmas (nome, tipo_ensino, periodo) VALUES (?, ?, ?)");
+    $stmt->bind_param("sss", $nometurma, $tipo_ensino, $periodo);
+    $stmt->execute();
+    // Capturando o id da turma
+    $turma_id = $conn->insert_id;
+
+    // Inserir dados da matrícula
+    $stmt = $conn->prepare("INSERT INTO dados_matricula (matricula, turma_id, inicio, termino) VALUES (?, ?, ?, ?)");
+    $stmt->bind_param("iiss", $matricula, $turma_id, $inicio, $termino);
+    $stmt->execute();
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -133,22 +174,22 @@
 <body>
     <div class="container">
         <div class="left-panel">
-            <form action="cadastro.php" method="POST">
-                <label for="name">Nome Completo:</label>
-                <input type="text" id="name" name="name" required>
+            <form action="cadastro.php" method="POST" enctype="multipart/form-data">
+                <label for="nome">Nome Completo:</label>
+                <input type="text" id="nome" name="nome" required>
 
                 <label for="rg">RG:</label>
-                <input type="text" id="rg" name="rg" required pattern="\d{6,8}[0-9Xx]">
+                <input type="text" id="rg" name="rg">
 
                 <label for="cpf">CPF:</label>
-                <input type="text" id="cpf" name="cpf" pattern="\d{11}" required>
+                <input type="text" id="cpf" name="cpf" required>
 
                 <label for="nascimento">Data de Nascimento:</label>
                 <input type="date" id="nascimento" name="nascimento" required>
 
                 <label for="sexo">Sexo:</label>
                 <select id="sexo" name="sexo" required>
-                    <option value="">Selecione</option>
+                    <option value="" disabled selected>Selecione</option>
                     <option value="masculino">Masculino</option>
                     <option value="feminino">Feminino</option>
                     <option value="outro">Outro</option>
@@ -159,34 +200,41 @@
 
                 <label for="estado">Estado do Aluno:</label>
                 <select id="estado" name="estado" required>
-                    <option value="">Selecione</option>
+                    <option value="" disabled selected>Selecione</option>
                     <option value="ativo">Ativo</option>
                     <option value="inativo">Inativo</option>
                 </select>
             </div>
             <div class="right-panel">
-            <div class="image-container">
-                <label for="foto" class="image-label">
+                <div class="image-container">
+                    <label for="foto" class="image-label">
                     <img id="preview" src="perfil.png" alt="Foto do Aluno">
                     <div class="overlay-text">
-                    <span class="select-text">Selecionar imagem</span>
-                    <span class="remove-text" onclick="removerImagem()">Remover imagem</span>
+                        <span class="select-text">Selecionar imagem</span>
+                        <span class="remove-text" onclick="removerImagem()">Remover imagem</span>
                     </div>
-                </label>
-                <input type="file" id="foto" name="foto" accept="image/*" style="display: none;" onchange="previewImage(event)">
-            </div>
+                    </label>
+                    <input type="file" id="foto" name="foto" accept="image/*" style="display: none;" onchange="previewImage(event)">
+                </div>
 
 
 
                 <label for="matricula">Matrícula:</label>
                 <input type="number" id="matricula" name="matricula" required>
 
+                <label for="tipo_ensino">tipo de ensino:</label>
+                <select id="tipo_ensino" name="tipo_ensino" required>
+                    <option value="" disabled selected>Selecione</option>
+                    <option value="fundamental">fundamental</option>
+                    <option value="medio">medio</option>
+                    <option value="curso">curso</option>
+                </select>
+
                 <label for="curso">Curso:</label>
                 <select id="curso" name="curso" required>
-                    <option value="">Selecione</option>
+                    <option value="" disabled selected>Selecione</option>
                     <option value="curso1">Curso 1</option>
                     <option value="curso2">Curso 2</option>
-                    <!-- teste -->
                 </select>
 
                 <label for="inicio">Início:</label>
@@ -199,7 +247,12 @@
                 <input type="text" id="turma" name="turma" required>
 
                 <label for="periodo">Período:</label>
-                <input type="text" id="periodo" name="periodo" required>
+                <select id="periodo" name="periodo" required>
+                    <option value="" disabled selected>Selecione</option>
+                    <option value="manhã">manhã</option>
+                    <option value="tarde">tarde</option>
+                    <option value="noite">noite</option>
+                </select>
 
                 <button type="submit">Cadastrar</button>
             </div>
@@ -226,6 +279,7 @@
         preview.classList.remove('selected');
         document.getElementById('foto').value = "";
     }
+
     </script>
 </body>
 </html>

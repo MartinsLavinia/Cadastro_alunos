@@ -38,6 +38,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $stmt->bind_param("iiss", $matricula, $turma_id, $inicio, $termino);
     $stmt->execute();
 }
+
+function gerarMatricula() {
+    // Gerar número aleatório de 6 dígitos
+    $matricula = rand(100000, 999999);
+    return $matricula;
+}
+
+
+// Função para verificar se a matrícula já existe
+function matriculaExiste($matricula, $conexao) {
+    $sql = "SELECT COUNT(*) FROM alunos WHERE matricula = ?";
+    $stmt = $conexao->prepare($sql);
+    $stmt->bind_param("i", $matricula);
+    $stmt->execute();
+    $stmt->bind_result($count);
+    $stmt->fetch();
+    return $count > 0; // Retorna true se a matrícula já existir
+}
+
+// Gerar uma matrícula única
+do {
+    $matricula = gerarMatricula();
+} while (matriculaExiste($matricula, $conexao)); // Continua gerando enquanto já existir
+
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -178,11 +202,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <label for="nome">Nome Completo:</label>
                 <input type="text" id="nome" name="nome" required>
 
-                <label for="rg">RG:</label>
-                <input type="text" id="rg" name="rg">
+                <label for="cpf">CPF</label>
+                <input type="text" id="cpf" maxlength="14"/>
 
-                <label for="cpf">CPF:</label>
-                <input type="text" id="cpf" name="cpf" required>
+                <label for="rg">RG</label>
+                <input type="text" id="rg" maxlength="12" />
 
                 <label for="nascimento">Data de Nascimento:</label>
                 <input type="date" id="nascimento" name="nascimento" required>
@@ -218,24 +242,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
 
 
+                <?php
+                //Retorna o valor gerado da matrícula
+                echo "<p style='margin-top: 25px; margin-bottom: 1px; '>Matrícula:</p><h2 style='margin: -1px; color: #2ecc71'>$matricula</h2>";
+                ?>
 
-                <label for="matricula">Matrícula:</label>
-                <input type="number" id="matricula" name="matricula" required>
 
                 <label for="tipo_ensino">tipo de ensino:</label>
-                <select id="tipo_ensino" name="tipo_ensino" required>
+                <select id="tipo_ensino" name="tipo_ensino" required onchange="verificarTipoEnsino()">
                     <option value="" disabled selected>Selecione</option>
                     <option value="fundamental">fundamental</option>
                     <option value="medio">medio</option>
                     <option value="curso">curso</option>
                 </select>
 
-                <label for="curso">Curso:</label>
-                <select id="curso" name="curso" required>
-                    <option value="" disabled selected>Selecione</option>
-                    <option value="curso1">Curso 1</option>
-                    <option value="curso2">Curso 2</option>
-                </select>
+                <div id="campoCurso" style="display: none;">
+                    <label for="curso">Curso:</label>
+                    <select id="curso" name="curso">
+                        <option value="" disabled selected>Selecione</option>
+                        <option value="curso1">Curso 1</option>
+                        <option value="curso2">Curso 2</option>
+                    </select>
+                </div>
 
                 <label for="inicio">Início:</label>
                 <input type="date" id="inicio" name="inicio" required>
@@ -280,6 +308,93 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         document.getElementById('foto').value = "";
     }
 
+    //Se o tipo de ensino for curso exibe o campo, se não, o mantem oculto
+    function verificarTipoEnsino() {
+    var tipo = document.getElementById("tipo_ensino").value;
+    var campoCurso = document.getElementById("campoCurso");
+
+    if (tipo === "curso") {
+        campoCurso.style.display = "block";
+        document.getElementById("curso").required = true;
+    } else {
+        campoCurso.style.display = "none";
+        document.getElementById("curso").required = false;
+    }
+}
+
+
+// Formata o CPF no formato 000.000.000-00
+function formatCPF(value) {
+    // Remove tudo que não é número
+    const numericValue = value.replace(/\D/g, "");
+    let formattedValue = "";
+
+    if (numericValue.length <= 3) {
+      formattedValue = numericValue;
+    } else if (numericValue.length <= 6) {
+      formattedValue = numericValue.replace(/(\d{3})(\d+)/, "$1.$2");
+    } else if (numericValue.length <= 9) {
+      formattedValue = numericValue.replace(
+        /(\d{3})(\d{3})(\d+)/,
+        "$1.$2.$3"
+      );
+    } else if (numericValue.length <= 11) {
+      formattedValue = numericValue.replace(
+        /(\d{3})(\d{3})(\d{3})(\d+)/,
+        "$1.$2.$3-$4"
+      );
+    } else {
+      formattedValue = numericValue.slice(0, 11).replace(
+        /(\d{3})(\d{3})(\d{3})(\d{2})/,
+        "$1.$2.$3-$4"
+      );
+    }
+
+    return formattedValue;
+  }
+
+  // Formata o RG no formato 00.000.000-0
+  function formatRG(value) {
+    // Remove tudo que não é número ou x
+    const alphanumericValue = value.toUpperCase().replace(/[^0-9X]/g, "");
+    let formattedValue = "";
+
+    if (alphanumericValue.length <= 2) {
+      formattedValue = alphanumericValue;
+    } else if (alphanumericValue.length <= 5) {
+      formattedValue = alphanumericValue.replace(/(\d{2})(\d+)/, "$1.$2");
+    } else if (alphanumericValue.length <= 8) {
+      formattedValue = alphanumericValue.replace(
+        /(\d{2})(\d{3})(\d*)/,
+        "$1.$2.$3"
+      );
+    } else if (alphanumericValue.length <= 9) {
+      formattedValue = alphanumericValue.replace(
+        /(\d{2})(\d{3})(\d{3})([0-9X]?)/,
+        "$1.$2.$3-$4"
+      );
+    } else {
+      // Se tiver mais chars, limita e formata os primeiros 9
+      formattedValue = alphanumericValue
+        .slice(0, 9)
+        .replace(/(\d{2})(\d{3})(\d{3})([0-9X]?)/, "$1.$2.$3-$4");
+    }
+
+    return formattedValue;
+  }
+
+  const cpfInput = document.getElementById("cpf");
+  const rgInput = document.getElementById("rg");
+
+  cpfInput.addEventListener("input", (e) => {
+    const formatted = formatCPF(e.target.value);
+    e.target.value = formatted;
+  });
+
+  rgInput.addEventListener("input", (e) => {
+    const formatted = formatRG(e.target.value);
+    e.target.value = formatted;
+  });
     </script>
 </body>
 </html>

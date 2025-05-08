@@ -2,25 +2,25 @@
 include 'conexao.php';
 
 $mensagem = '';
-$osData = null;
+$alunoData = null;
 
 if (isset($_GET['matricula'])) {
     $matricula = $_GET['matricula'];
 
-    $stmt = $connection->prepare("SELECT * FROM alunos WHERE matricula = ?");
+    $stmt = $conexao->prepare("SELECT * FROM alunos WHERE matricula = ?");
     $stmt->bind_param("i", $matricula);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
-        $osData = $result->fetch_assoc();
+        $alunoData = $result->fetch_assoc();
     } else {
-        $mensagem = "❌ Matricula não encontrada.";
+        $mensagem = "❌ Matrícula não encontrada.";
     }
 }
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Coletar os dados do formulário
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $matricula = $_POST['matricula'];
     $nome = $_POST['nome'];
     $rg = $_POST['rg'];
     $cpf = $_POST['cpf'];
@@ -28,8 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $sexo = $_POST['sexo'];
     $responsavel = $_POST['responsavel'];
     $estado_aluno = $_POST['estado'];
-    $foto_perfil = $_FILES['foto']['name'] ?? null;
-    $matricula = $_POST['matricula'];
     $curso = $_POST['curso'];
     $inicio = $_POST['inicio'];
     $termino = $_POST['termino'];
@@ -37,18 +35,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $tipo_ensino = $_POST['tipo_ensino'];
     $periodo = $_POST['periodo'];
 
-    // Atualiza os dados do aluno
-    $stmt = $connection->prepare("
-        UPDATE alunos 
-        SET nome = ?, rg = ?, cpf = ?, data_nascimento = ?, sexo = ?, 
-         responsavel = ?, estado = ?, matricula = ?, curso = ?, 
+    $stmt = $conexao->prepare("
+        UPDATE alunos SET 
+            nome = ?, rg = ?, cpf = ?, data_nascimento = ?, sexo = ?, 
+            responsavel = ?, estado = ?, curso = ?, 
             inicio = ?, termino = ?, turma = ?, tipo_ensino = ?, periodo = ?
         WHERE matricula = ?
     ");
     $stmt->bind_param(
-        "sssssssissssss",
+        "sssssssssssssi",
         $nome, $rg, $cpf, $data_nascimento, $sexo, $responsavel, $estado_aluno,
-        $matricula, $curso, $inicio, $termino, $nometurma, $tipo_ensino, $periodo,
+        $curso, $inicio, $termino, $nometurma, $tipo_ensino, $periodo,
+        $matricula
     );
 
     if ($stmt->execute()) {
@@ -57,29 +55,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $mensagem = "❌ Erro ao atualizar os dados do aluno.";
     }
 
-    // Recarrega os dados atualizados
-    $stmt = $connection->prepare("SELECT * FROM alunos WHERE matricula = ?");
+    $stmt = $conexao->prepare("SELECT * FROM alunos WHERE matricula = ?");
     $stmt->bind_param("i", $matricula);
     $stmt->execute();
     $alunoData = $stmt->get_result()->fetch_assoc();
 }
-
 ?>
 
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Alterar Ordem de Serviço</title>
+    <title>Editar Aluno</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
 <div class="container mt-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
+        <div class="col-md-10">
             <div class="card shadow-sm">
-                <div class="card-header bg-warning text-dark text-center">
-                    <h4>✏️ Editar Ordem de Serviço</h4>
+                <div class="card-header bg-primary text-white text-center">
+                    <h4>✏️ Editar Dados do Aluno</h4>
                 </div>
                 <div class="card-body">
                     <?php if (!empty($mensagem)): ?>
@@ -88,49 +84,80 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                     <?php endif; ?>
 
-                    <?php if ($osData): ?>
+                    <?php if ($alunoData): ?>
                         <form method="POST">
-                            <input type="hidden" name="numero_os" value="<?= htmlspecialchars($osData['NumeroOS']) ?>">
+                            <input type="hidden" name="matricula" value="<?= htmlspecialchars($alunoData['matricula']) ?>">
 
-                            <div class="mb-3">
-                                <label class="form-label">Número da OS:</label>
-                                <input type="text" class="form-control" value="<?= htmlspecialchars($osData['NumeroOS']) ?>" readonly>
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label>Nome:</label>
+                                    <input type="text" name="nome" class="form-control" value="<?= htmlspecialchars($alunoData['nome']) ?>" required>
+                                </div>
+                                <div class="col">
+                                    <label>RG:</label>
+                                    <input type="text" name="rg" class="form-control" value="<?= htmlspecialchars($alunoData['rg']) ?>" required>
+                                </div>
+                                <div class="col">
+                                    <label>CPF:</label>
+                                    <input type="text" name="cpf" class="form-control" value="<?= htmlspecialchars($alunoData['cpf']) ?>" required>
+                                </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Data:</label>
-                                <input type="date" name="data" class="form-control" value="<?= htmlspecialchars($osData['Data']) ?>" required>
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label>Data de Nascimento:</label>
+                                    <input type="date" name="nascimento" class="form-control" value="<?= htmlspecialchars($alunoData['data_nascimento']) ?>" required>
+                                </div>
+                                <div class="col">
+                                    <label>Sexo:</label>
+                                    <select name="sexo" class="form-control" required>
+                                        <option value="M" <?= $alunoData['sexo'] === 'M' ? 'selected' : '' ?>>Masculino</option>
+                                        <option value="F" <?= $alunoData['sexo'] === 'F' ? 'selected' : '' ?>>Feminino</option>
+                                    </select>
+                                </div>
+                                <div class="col">
+                                    <label>Responsável:</label>
+                                    <input type="text" name="responsavel" class="form-control" value="<?= htmlspecialchars($alunoData['responsavel']) ?>">
+                                </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Equipamento:</label>
-                                <input type="text" name="equipamento" class="form-control" value="<?= htmlspecialchars($osData['Equipamento']) ?>" required>
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label>Estado:</label>
+                                    <input type="text" name="estado" class="form-control" value="<?= htmlspecialchars($alunoData['estado']) ?>">
+                                </div>
+                                <div class="col">
+                                    <label>Curso:</label>
+                                    <input type="text" name="curso" class="form-control" value="<?= htmlspecialchars($alunoData['curso']) ?>">
+                                </div>
+                                <div class="col">
+                                    <label>Tipo de Ensino:</label>
+                                    <input type="text" name="tipo_ensino" class="form-control" value="<?= htmlspecialchars($alunoData['tipo_ensino']) ?>">
+                                </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Defeito:</label>
-                                <input type="text" name="defeito" class="form-control" value="<?= htmlspecialchars($osData['Defeito']) ?>" required>
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label>Início:</label>
+                                    <input type="date" name="inicio" class="form-control" value="<?= htmlspecialchars($alunoData['inicio']) ?>">
+                                </div>
+                                <div class="col">
+                                    <label>Término:</label>
+                                    <input type="date" name="termino" class="form-control" value="<?= htmlspecialchars($alunoData['termino']) ?>">
+                                </div>
+                                <div class="col">
+                                    <label>Turma:</label>
+                                    <input type="text" name="turma" class="form-control" value="<?= htmlspecialchars($alunoData['turma']) ?>">
+                                </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Serviço:</label>
-                                <input type="text" name="servico" class="form-control" value="<?= htmlspecialchars($osData['Servico']) ?>" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Valor Total (R$):</label>
-                                <input type="number" class="form-control" value="<?= htmlspecialchars($osData['ValorTotal']) ?>" readonly>
-                            </div>
-
-                            <div class="text-end">
-                                <button type="submit" class="btn btn-primary">💾 Salvar Alterações</button>
+                            <div class="mb-3 text-end">
+                                <button type="submit" class="btn btn-success">💾 Salvar Alterações</button>
                             </div>
                         </form>
-                        <div class="card-body">
-    <a href="consulta.php" class="btn btn-secondary mb-3">🔙 Voltar para Consulta</a>
-    </div>
-                    <?php elseif (!$mensagem): ?>
-                        <div class="alert alert-warning">⚠️ Nenhuma Ordem de Serviço foi selecionada.</div>
+                        <a href="consulta.php" class="btn btn-secondary">🔙 Voltar para Consulta</a>
+                    <?php else: ?>
+                        <div class="alert alert-warning">⚠️ Nenhum aluno selecionado para edição.</div>
                     <?php endif; ?>
                 </div>
             </div>

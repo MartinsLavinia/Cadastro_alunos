@@ -1,9 +1,29 @@
+<?php
+include 'conexao.php'; // Conexão com o banco de dados
+// Consulta para contar os alunos
+$sql = "SELECT COUNT(*) as total FROM alunos";
+$result = $conexao->query($sql);
+$totalAlunos = 0;
+
+if ($result && $row = $result->fetch_assoc()) {
+    $totalAlunos = $row['total'];
+}
+
+$sqlInativos = "SELECT COUNT(*) as total FROM alunos WHERE estado = 'inativo'";
+$resultInativos = $conexao->query($sqlInativos);
+$totalInativos = 0;
+if ($resultInativos && $row = $resultInativos->fetch_assoc()) {
+    $totalInativos = $row['total'];
+}
+
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro de Cursos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -109,10 +129,35 @@ a.card {
   color: inherit;
 }
 
+.navbar-logo {
+    width: 100px; /* Define a largura da imagem */
+    height: auto; /* Mantém a proporção da imagem */
+}
+
+
     </style>
 </head>
 <body>
-
+<!-- Menu Hambúrguer -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand"><img src="logo_Unitech.png" alt="Logo da escola" class="navbar-logo"></a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="index.php">Início</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="cadastro_aluno.php">Cadastrar Alunos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="listar_alunos.php">Matriculas</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
 
 <h2>Painel Principal</h2>
   <div class="container">
@@ -126,11 +171,12 @@ a.card {
       <h3>Listar Alunos</h3>
     </a>
     <div class="info-box">
-      <strong>Alunos cadastrados:</strong> 23
+      <strong>Alunos cadastrados:</strong> <?php echo $totalAlunos; ?>
     </div>
     <div class="info-box">
-      <strong>Cursos disponíveis:</strong> 5
+      <strong>Alunos formados:</strong> <?php echo $totalInativos; ?>
     </div>
   </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

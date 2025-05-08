@@ -2,66 +2,90 @@
 // Incluir a conexão com o banco
 include('conexao.php');
 
-// Verificar se o formulário foi enviado
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Coletar os dados do formulário
-    $nome = $_POST['nome'];
-    $rg = $_POST['rg'];
-    $cpf = $_POST['cpf'];
-    $data_nascimento = $_POST['nascimento'];
-    $sexo = $_POST['sexo'];
-    $responsavel = $_POST['responsavel'];
-    $estado_aluno = $_POST['estado'];
-    $foto_perfil = $_FILES['foto']['name'] ?? null;  // Se foto não for enviada, ficará null
-    $matricula = $_POST['matricula'];
-    $curso = $_POST['curso'];
-    $inicio = $_POST['inicio'];
-    $termino = $_POST['termino'];
-    $nometurma = $_POST['turma'];
-    $tipo_ensino = $_POST['tipo_ensino'];
-    $periodo = $_POST['periodo'];
-
-    // Inserir aluno
-    $stmt = $conn->prepare("INSERT INTO alunos (matricula, nome, RG, CPF, foto_url, data_nascimento, sexo, responsavel, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("issssssss", $matricula, $nome, $rg, $cpf, $foto_perfil, $data_nascimento, $sexo, $responsavel, $estado_aluno);
-    $stmt->execute();
-
-    // Inserir turma
-    $stmt = $conn->prepare("INSERT INTO turmas (nome, tipo_ensino, periodo) VALUES (?, ?, ?)");
-    $stmt->bind_param("sss", $nometurma, $tipo_ensino, $periodo);
-    $stmt->execute();
-    // Capturando o id da turma
-    $turma_id = $conn->insert_id;
-
-    // Inserir dados da matrícula
-    $stmt = $conn->prepare("INSERT INTO dados_matricula (matricula, turma_id, inicio, termino) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("iiss", $matricula, $turma_id, $inicio, $termino);
-    $stmt->execute();
-}
-
 function gerarMatricula() {
-    // Gerar número aleatório de 6 dígitos
-    $matricula = rand(100000, 999999);
-    return $matricula;
+  // Gerar número aleatório de 6 dígitos
+  $matricula = rand(100000, 999999);
+  return $matricula;
 }
 
 
 // Função para verificar se a matrícula já existe
 function matriculaExiste($matricula, $conexao) {
-    $sql = "SELECT COUNT(*) FROM alunos WHERE matricula = ?";
-    $stmt = $conexao->prepare($sql);
-    $stmt->bind_param("i", $matricula);
-    $stmt->execute();
-    $stmt->bind_result($count);
-    $stmt->fetch();
-    return $count > 0; // Retorna true se a matrícula já existir
+  $sql = "SELECT COUNT(*) FROM alunos WHERE matricula = ?";
+  $stmt = $conexao->prepare($sql);
+  $stmt->bind_param("i", $matricula);
+  $stmt->execute();
+  $stmt->bind_result($count);
+  $stmt->fetch();
+  return $count > 0; // Retorna true se a matrícula já existir
 }
 
 // Gerar uma matrícula única
 do {
-    $matricula = gerarMatricula();
+  $matricula = gerarMatricula();
 } while (matriculaExiste($matricula, $conexao)); // Continua gerando enquanto já existir
 
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  $matricula = gerarMatricula();
+  $nome = $_POST['nome'];
+  $cpf = $_POST['cpf'];
+  $rg = $_POST['rg'];
+  $nascimento = $_POST['nascimento'];
+  $sexo = $_POST['sexo'];
+  $responsavel = $_POST['responsavel'];
+  $estado = $_POST['estado'];
+  $foto_url = '';
+
+
+// Verifica se já existe aluno com o mesmo CPF ou RG
+$verifica = $conexao->prepare("SELECT * FROM alunos WHERE cpf = ? OR rg = ?");
+$verifica->bind_param("ss", $cpf, $rg);
+$verifica->execute();
+$resultado = $verifica->get_result();
+
+if ($resultado->num_rows > 0) {
+    echo "<script>alert('CPF ou RG já cadastrado!'); window.history.back();</script>";
+    exit; // Interrompe o cadastro
+}
+
+  // Upload da foto
+  if (isset($_FILES['foto']) && $_FILES['foto']['error'] == 0) {
+      $foto_nome = $_FILES['foto']['name'];
+      $foto_temp = $_FILES['foto']['tmp_name'];
+      $foto_ext = pathinfo($foto_nome, PATHINFO_EXTENSION);
+      $foto_url = 'uploads/' . uniqid() . '.' . $foto_ext;
+      move_uploaded_file($foto_temp, $foto_url);
+  }
+
+  // Inserir na tabela alunos
+  $sqlAluno = "INSERT INTO alunos (matricula, nome, cpf, rg, foto_url, data_nascimento, sexo, responsavel, estado)
+               VALUES ('$matricula', '$nome', '$cpf', '$rg', '$foto_url', '$nascimento', '$sexo', '$responsavel', '$estado')";
+  
+  if ($conexao->query($sqlAluno) === TRUE) {
+      // Dados para a tabela dados_matricula
+      $curso_id = isset($_POST['curso_id']) && $_POST['curso_id'] !== '' ? intval($_POST['curso_id']) : "NULL";
+      $turma_id = isset($_POST['turma_id']) ? $_POST['turma_id'] : null;
+      $inicio = $_POST['inicio'];
+      $termino = $_POST['termino'];
+      
+      if (!$turma_id && !$curso_id) {
+          die("Erro: turma_id ou curso_id não enviados. Verifique o formulário.");
+      }
+
+      $sqlMatricula = "INSERT INTO dados_matricula (matricula, turma_id, curso_id, inicio, termino)
+                       VALUES ('$matricula', '$turma_id', $curso_id, '$inicio', '$termino')";
+
+      if ($conexao->query($sqlMatricula) === TRUE) {
+          echo "Aluno cadastrado com sucesso!";
+      } else {
+          echo "Erro ao inserir dados de matrícula: " . $conexao->error;
+      }
+  } else {
+      echo "Erro ao inserir aluno: " . $conexao->error;
+  }
+}
+
+$conexao->close();
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -69,6 +93,7 @@ do {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro de Alunos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -226,6 +251,27 @@ button:hover {
     </style>
 </head>
 <body>
+<!-- Menu Hambúrguer -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand"><img src="logo_Unitech.png" alt="Logo da escola" class="navbar-logo"></a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="index.php">Início</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="cadastro_aluno.php">Cadastrar Alunos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="listar_alunos.php">Matriculas</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
     <div class="container">
         <div class="left-panel">
             <form action="cadastro_aluno.php" method="POST" enctype="multipart/form-data">
@@ -233,13 +279,13 @@ button:hover {
                 <input type="text" id="nome" name="nome" required>
 
                 <label for="cpf">CPF</label>
-                <input type="text" id="cpf" maxlength="14"/>
+                <input type="text" name="cpf" maxlength="14"/>
 
                 <label for="rg">RG</label>
-                <input type="text" id="rg" maxlength="12" />
+                <input type="text" name="rg" maxlength="12" />
 
                 <label for="nascimento">Data de Nascimento:</label>
-                <input type="date" id="nascimento" name="nascimento" required>
+                <input type="date" name="nascimento" name="nascimento" required>
 
                 <label for="sexo">Sexo:</label>
                 <select id="sexo" name="sexo" required>
@@ -286,14 +332,20 @@ button:hover {
                     <option value="curso">curso</option>
                 </select>
 
-                <div id="campoCurso" style="display: none;">
-                    <label for="curso">Curso:</label>
-                    <select id="curso" name="curso">
-                        <option value="" disabled selected>Selecione</option>
-                        <option value="curso1">Curso 1</option>
-                        <option value="curso2">Curso 2</option>
-                    </select>
-                </div>
+                <div id="campoCurso">
+                <label for="curso_id">Curso:</label>
+                <select id="curso_id" name="curso_id">
+                    <option value="" disabled selected>Selecione</option>
+                    <?php
+                    // Exibir os cursos existentes do banco
+                    include 'conexao.php';
+                    $result = $conexao->query("SELECT id, nome FROM cursos");
+                    while ($curso = $result->fetch_assoc()) {
+                        echo "<option value='{$curso['id']}'>{$curso['nome']}</option>";
+                    }
+                    ?>
+                </select>
+            </div>
 
                 <label for="inicio">Início:</label>
                 <input type="date" id="inicio" name="inicio" required>
@@ -301,8 +353,18 @@ button:hover {
                 <label for="termino">Término:</label>
                 <input type="date" id="termino" name="termino" required>
 
-                <label for="turma">Turma:</label>
-                <input type="text" id="turma" name="turma" required>
+                <label for="turma_id">Turma:</label>
+                <select id="turma_id" name="turma_id" required>
+                    <option value="" disabled selected>Selecione</option>
+                    <?php
+                    // Exibir as turmas existentes do banco
+                    include 'conexao.php';
+                    $result = $conexao->query("SELECT id, nome FROM turmas");
+                    while ($turma = $result->fetch_assoc()) {
+                        echo "<option value='{$turma['id']}'>{$turma['nome']}</option>";
+                    }
+                    ?>
+                </select>
 
                 <label for="periodo">Período:</label>
                 <select id="periodo" name="periodo" required>
@@ -314,9 +376,12 @@ button:hover {
 
                 <button type="submit">Cadastrar</button>
             </div>
-        </form>
-    </div>
+          </div>
+      </form>
+      
     <script>
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js">
+
         function previewImage(event) {
         const preview = document.getElementById('preview');
         const file = event.target.files[0];

@@ -1,11 +1,43 @@
+<?php
+include('conexao.php');
+
+// Inserção se formulário enviado
+$mensagem = "";
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $nome = $_POST['nome'];
+    $tipo_ensino = $_POST['tipo_ensino'];
+    $periodo = $_POST['periodo'];
+    $curso_id = !empty($_POST['curso_id']) ? $_POST['curso_id'] : NULL;
+
+    $stmt = $conexao->prepare("INSERT INTO turmas (nome, tipo_ensino, periodo, curso_id) VALUES (?, ?, ?, ?)");
+    $stmt->bind_param("sssi", $nome, $tipo_ensino, $periodo, $curso_id);
+
+    if ($stmt->execute()) {
+        $mensagem = "Turma cadastrada com sucesso!";
+    } else {
+        $mensagem = "Erro: " . $stmt->error;
+    }
+
+    $stmt->close();
+}
+
+// Buscar cursos para o select
+$cursos = [];
+$result = $conexao->query("SELECT id, nome FROM cursos");
+
+    while ($row = $result->fetch_assoc()) {
+        $cursos[] = $row;
+    }
+$conexao->close();
+?>
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Cadastrar Turma</title>
     <style>
-        body {
+    body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f0f2f5;
   margin: 0;
@@ -76,51 +108,31 @@ button:hover {
     </style>
 </head>
 <body>
-    <div class="main-container">
-        <div class="form-box">
-            <h2>Cadastrar Curso</h2>
-            <form action="salvar_curso.php" method="post">
-                <label for="nome_curso">Nome do Curso:</label>
-                <input type="text" id="nome_curso" name="nome_curso" required>
+    <div class="form-box">
+        <h2>Cadastrar Turma</h2>
+        <?php if (!empty($mensagem)) echo "<p>$mensagem</p>"; ?>
+        <form method="post">
+            <label for="nome">Nome da Turma:</label>
+            <input type="text" id="nome" name="nome" required>
 
-                <label for="descricao">Descrição (opcional):</label>
-                <textarea id="descricao" name="descricao" rows="3"></textarea>
+            <label for="tipo_ensino">Tipo de Ensino:</label>
+            <select id="tipo_ensino" name="tipo_ensino" required>
+                <option value="">Selecione</option>
+                <option value="Fundamental">Fundamental</option>
+                <option value="Médio">Médio</option>
+                <option value="Curso">Curso</option>
+            </select>
 
-                <button type="submit">Cadastrar Curso</button>
-            </form>
-        </div>
-        
-        <div class="form-box">
-            <h2>Cadastrar Turma</h2>
-            <form action="salvar_turma.php" method="post">
-                <label for="nome_turma">Nome da Turma:</label>
-                <input type="text" id="nome_turma" name="nome_turma" required>
+            <label for="periodo">Período:</label>
+            <select id="periodo" name="periodo" required>
+                <option value="">Selecione</option>
+                <option value="Manhã">Manhã</option>
+                <option value="Tarde">Tarde</option>
+                <option value="Noite">Noite</option>
+            </select>
 
-                <label for="tipo_ensino">Tipo de Ensino:</label>
-                <select id="tipo_ensino" name="tipo_ensino" required>
-                    <option value="">Selecione</option>
-                    <option value="Fundamental">Fundamental</option>
-                    <option value="Médio">Médio</option>
-                    <option value="Curso">Curso</option>
-                </select>
-
-                <label for="periodo">Período:</label>
-                <select id="periodo" name="periodo" required>
-                    <option value="">Selecione</option>
-                    <option value="Manhã">Manhã</option>
-                    <option value="Tarde">Tarde</option>
-                    <option value="Noite">Noite</option>
-                </select>
-
-                <label for="curso_id">Curso (caso seja um curso):</label>
-                <select id="curso_id" name="curso_id">
-                    <option value="">Nenhum</option>
-                </select>
-
-                <button type="submit">Cadastrar Turma</button>
-            </form>
-        </div>
+            <button type="submit">Cadastrar Turma</button>
+        </form>
     </div>
-
 </body>
 </html>

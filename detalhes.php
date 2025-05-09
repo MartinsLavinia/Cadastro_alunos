@@ -44,7 +44,8 @@ if (isset($_POST['editar'])) {
     <meta charset="UTF-8">
     <title>Detalhes do Aluno</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
+    <link href="style.css"  rel="stylesheet">
+  </head>
 <body>
     <!-- Menu Hambúrguer -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light">

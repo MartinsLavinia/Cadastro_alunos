@@ -94,12 +94,11 @@ $conexao->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro de Alunos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="style.css"  rel="stylesheet">
     <style>
-        body {
+  body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f0f2f5;
-  margin: 0;
-  padding: 30px 0;
 }
 
 form {
@@ -151,6 +150,7 @@ button:hover {
   width: 85%;
   min-height: 85vh;
   margin: auto;
+  margin-top: 60px;
   background-color: #ffffff;
   padding: 30px 40px;
   border-radius: 16px;

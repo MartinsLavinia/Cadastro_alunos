@@ -10,9 +10,72 @@ $result = $conexao->query($sql);
 <head>
     <meta charset="UTF-8">
     <title>Listagem de Alunos</title>
-    <!-- Link para o Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
+    <link href="style.css"  rel="stylesheet">
+    <style>
+      .container {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    h2.text-center {
+        margin-bottom: 30px;
+        font-weight: bold;
+        color: #3AD770;
+    }
+
+    .table {
+        background-color: #fafafa;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .table th {
+        background-color: #3AD770;
+        color: white;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .table td {
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    .table img {
+        border-radius: 50%;
+        border: 2px solid #3AD770;
+        object-fit: cover;
+    }
+
+    .btn-info {
+        background-color: #3AD770;
+        border: none;
+        color: white;
+        transition: background 0.3s ease;
+    }
+
+    .btn-info:hover {
+        background-color: #2fb95f;
+    }
+
+    .link-detalhes {
+    color: #0d6efd; /* Azul padrão de link */
+    text-decoration: underline;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    }
+
+    .link-detalhes:hover {
+        color: #084298; /* Azul mais escuro ao passar o mouse */
+    }
+
+
+    </style>
+  </head>
 <body>
 <!-- Menu Hambúrguer -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -56,7 +119,7 @@ $result = $conexao->query($sql);
                         <td><?php echo $aluno['nome']; ?></td>
                         <td><?php echo $aluno['matricula']; ?></td>
                         <td>
-                            <a href="detalhes.php?matricula=<?php echo $aluno['matricula']; ?>" class="btn btn-info btn-sm">Mais Detalhes</a>
+                          <a href="detalhes.php?matricula=<?php echo $aluno['matricula']; ?>" class="link-detalhes">Mais Detalhes</a>
                         </td>
                     </tr>
                 <?php endwhile; ?>

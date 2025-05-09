@@ -1,0 +1,43 @@
+/* Estilo do logo */
+.navbar-logo {
+    height: 40px;
+}
+
+/* Estilo geral da navbar */
+.navbar {
+    background-color: #ffffff !important;
+    border: none;
+    margin: 0;
+    padding: 0;
+    border-bottom: 3px solid #3AD770;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* Espaçamento entre navbar e conteúdo abaixo */
+.navbar + * {
+    margin-top: 30px; /* ajuste conforme necessário */
+}
+
+/* Cor dos links */
+.navbar-nav .nav-link {
+    color: #333333;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link.active {
+    color: white !important;
+    background-color: #3AD770;
+    border-radius: 5px;
+    padding: 5px 10px;
+}
+
+/* Botão hamburguer customizado */
+.navbar-toggler {
+    border-color: #3AD770;
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(58,215,112, 1)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}

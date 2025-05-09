@@ -24,10 +24,10 @@ if ($resultInativos && $row = $resultInativos->fetch_assoc()) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro de Cursos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
         }
         form {
             margin-bottom: 20px;
@@ -76,64 +76,58 @@ if ($resultInativos && $row = $resultInativos->fetch_assoc()) {
         }
 
 
-        body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background-color: #f8f9fa;
-    }
-    .container {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding: 40px;
-}
+        .painel-container {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 20px;
+          padding: 20px;
+        }
 
-.card {
-  background-color: white;
-  padding: 20px 30px;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 80px;
-}
+        /* Coluna da esquerda */
+        .left-column {
+          flex: 1;
+          min-width: 300px;
+          max-width: 50%;
+          display: flex;
+          flex-direction: column;
+          gap: 15px;
+        }
 
-.card:hover {
-  transform: translateX(5px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
+        /* Coluna da direita */
+        .right-column {
+          flex: 1;
+          min-width: 300px;
+          max-width: 50%;
+          display: flex;
+          flex-direction: column;
+          gap: 15px;
+        }
 
-.card h3 {
-  margin: 0;
-  font-size: 1.2em;
-}
+        /* Estilo dos cards */
+        .painel-card {
+          display: block;
+          background-color: #f8f9fa;
+          padding: 20px;
+          border-left: 6px solid #3AD770;
+          border-radius: 8px;
+          text-decoration: none;
+          color: #333;
+          transition: 0.3s;
+        }
 
-.info-box {
-  background-color: #e9ecef;
-  padding: 15px 25px;
-  border-radius: 10px;
-  text-align: left;
-  font-size: 1.1em;
-}
+        .painel-card:hover {
+          background-color: #e9ffe6;
+        }
 
-h2 {
-  margin-bottom: 30px;
-  text-align: center;
-}
-
-a.card {
-  text-decoration: none;
-  color: inherit;
-}
-
-.navbar-logo {
-    width: 100px; /* Define a largura da imagem */
-    height: auto; /* Mantém a proporção da imagem */
-}
-
+        /* Estilo das info-boxes */
+        .info-box {
+          background-color: #ffffff;
+          border: 2px solid #3AD770;
+          border-radius: 8px;
+          padding: 20px;
+          font-size: 16px;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
 
     </style>
 </head>
@@ -159,17 +153,23 @@ a.card {
     </div>
   </nav>
 
-<h2>Painel Principal</h2>
-  <div class="container">
-    <a href="cadastro_aluno.php" class="card">
+  <h2 class="text-center">Painel Principal</h2>
+<div class="painel-container">
+  <!-- Coluna da esquerda com os cards -->
+  <div class="left-column">
+    <a href="cadastro_aluno.php" class="painel-card">
       <h3>Cadastrar Aluno</h3>
     </a>
-    <a href="cursos_turmas.php" class="card">
+    <a href="cursos_turmas.php" class="painel-card">
       <h3>Gerenciar Cursos e Turmas</h3>
     </a>
-    <a href="editar.php" class="card">
+    <a href="editar.php" class="painel-card">
       <h3>Listar Alunos</h3>
     </a>
+  </div>
+
+  <!-- Coluna da direita com as infos -->
+  <div class="right-column">
     <div class="info-box">
       <strong>Alunos cadastrados:</strong> <?php echo $totalAlunos; ?>
     </div>
@@ -177,6 +177,8 @@ a.card {
       <strong>Alunos formados:</strong> <?php echo $totalInativos; ?>
     </div>
   </div>
+</div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

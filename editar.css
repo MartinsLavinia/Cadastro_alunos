@@ -1,0 +1,225 @@
+body {
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+        margin: 0;
+        padding: 0;
+    }
+
+    .tabela-container {
+        width: 95%;
+        margin: 30px auto;
+        background: #fff;
+        border: 1px solid #ccc;
+        padding: 15px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        border-radius: 10px;
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    .pesquisa-container {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .pesquisa-container input[type="number"] {
+        padding: 6px;
+        width: 200px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .pesquisa-container button {
+        padding: 6px 12px;
+        background-color: #3AD770;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 14px;
+        cursor: pointer;
+        margin-left: 10px;
+    }
+
+    .pesquisa-container button:hover {
+        background-color: #2980b9;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: center;
+        font-size: 14px;
+        border-color: #3AD770;
+    }
+
+    th {
+        background: #9ffcbf;
+        color: #222;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    img.foto {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border: 1px solid #999;
+    }
+
+    .acoes {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .acoes form {
+        display: inline;
+    }
+
+    .acoes button {
+        padding: 6px 12px;
+        font-size: 13px;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .acoes button:hover {
+        opacity: 0.85;
+    }
+
+    .botoes {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .botoes button {
+        padding: 10px 20px;
+        background-color: #3AD770; /* verde para "Salvar Novo" */
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 14px;
+        cursor: pointer;
+    }
+    
+    .btn-alterar {
+    background-color: #f1c40f; /* amarelo */
+    color: white;
+    padding: 6px 12px;
+    font-size: 13px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-excluir {
+    background-color: #e74c3c; /* vermelho */
+    color: white;
+    padding: 6px 12px;
+    font-size: 13px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+
+    .botoes button:hover {
+        background-color: #219150;
+    }
+
+    .btn-exportar {
+    background-color: #007bff; /* azul forte */
+    color: white;
+    padding: 8px 14px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-exportar:hover {
+    background-color: #0056b3; /* azul mais escuro no hover */
+}
+
+.btn-exportar svg {
+    fill: white;
+}
+
+/* Estilo geral do formulário de edição */
+.editar-form {
+    background-color: #f4f4f9;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 600px;
+    margin: 20px auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.editar-form label {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    display: block;
+    color: #333;
+}
+
+.editar-form input {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #333;
+    background-color: #fff;
+}
+
+.editar-form input[type="date"] {
+    cursor: pointer;
+}
+
+.editar-form button {
+    background-color: #219150;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s;
+}
+
+.editar-form button:hover {
+    background-color: #0056b3;
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 600px) {
+    .editar-form {
+        padding: 15px;
+        max-width: 90%;
+    }
+
+    .editar-form input, .editar-form button {
+        font-size: 16px;
+    }
+}

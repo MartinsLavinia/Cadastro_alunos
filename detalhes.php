@@ -1,4 +1,7 @@
 <?php
+include 'verificar_sessao.php'; // Inclui a verificação
+verificarSessao(); // Verifica se o usuário está autenticado
+
 include 'conexao.php'; // Conexão com o banco de dados
 
 // Verifica se a matrícula foi passada pela URL
@@ -7,6 +10,9 @@ if (!isset($_GET['matricula'])) {
 }
 
 $matricula = $_GET['matricula'];
+
+// Verifica se a matrícula foi corretamente passada
+var_dump($_GET); // Depuração
 
 // Consulta para buscar os dados completos do aluno usando a matrícula
 $sql = "SELECT * FROM alunos WHERE matricula = ?";
@@ -37,6 +43,7 @@ if (isset($_POST['editar'])) {
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="pt-br">

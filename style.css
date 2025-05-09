@@ -41,3 +41,18 @@
 .navbar-toggler-icon {
     background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(58,215,112, 1)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
 }
+
+.logout-btn {
+    border: 1px solid red;
+    border-radius: 5px;
+    margin-right: 20px;
+    color: red !important;
+    transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+    background-color: transparent !important;
+    color: darkred !important;
+    border: 1px solid darkred;
+}
+

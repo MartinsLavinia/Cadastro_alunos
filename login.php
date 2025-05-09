@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -120,19 +123,21 @@ button {
                     <button type="submit">Login</button>
                 </form>
                 <?php
+
                     $servername = "localhost";
                     $username = "root";
                     $password = "";
                     $dbname = "cadastro_alunos";
 
+                    // Conexão
                     $conexao = new mysqli($servername, $username, $password, $dbname);
-
                     if ($conexao->connect_error) {
                         die("Falha na conexão: " . $conexao->connect_error);
                     }
 
+                    // Verifica se foi enviado via POST
                     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                        $email = $_POST['email'];
+                        $email = trim($_POST['email']);
                         $senha = $_POST['senha'];
 
                         $stmt = $conexao->prepare("SELECT senha FROM contas WHERE email = ?");
@@ -145,21 +150,22 @@ button {
                             $stmt->fetch();
 
                             if (password_verify($senha, $senhaHash)) {
-                                session_start();
                                 $_SESSION['email'] = $email;
-                                echo "Login realizado com sucesso!";
                                 header("Location: index.php");
+                                exit(); // Encerrar execução após redirecionar
                             } else {
-                                echo "Senha incorreta!";
+                                $erro = "Senha incorreta!";
                             }
                         } else {
-                            echo "Email não encontrado!";
+                            $erro = "Email não encontrado!";
                         }
 
                         $stmt->close();
                         $conexao->close();
                     }
                     ?>
+                    
+                    <?php if (isset($erro)) echo "<p style='color:red;'>$erro</p>"; ?>
 
         </div>
     </div>

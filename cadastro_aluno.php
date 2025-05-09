@@ -1,4 +1,7 @@
 <?php
+include 'verificar_sessao.php'; // Inclui a verificação
+verificarSessao(); // Verifica se o usuário está autenticado
+
 // Incluir a conexão com o banco
 include('conexao.php');
 
@@ -26,7 +29,6 @@ do {
 } while (matriculaExiste($matricula, $conexao)); // Continua gerando enquanto já existir
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-  $matricula = gerarMatricula();
   $nome = $_POST['nome'];
   $cpf = $_POST['cpf'];
   $rg = $_POST['rg'];

@@ -1,4 +1,8 @@
 <?php
+
+include 'verificar_sessao.php'; // Inclui a verificação
+verificarSessao(); // Verifica se o usuário está autenticado
+
 include 'conexao.php'; // Conexão com o banco de dados
 // Consulta para contar os alunos
 $sql = "SELECT COUNT(*) as total FROM alunos";
@@ -29,52 +33,6 @@ if ($resultInativos && $row = $resultInativos->fetch_assoc()) {
         body {
             font-family: Arial, sans-serif;
         }
-        form {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin: 10px 0 5px;
-        }
-        input, select {
-            width: 100%;
-            padding: 8px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            border-width: 1px;
-        }
-        button {
-            padding: 10px 15px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-
-        .container {
-            display: flex;
-            width: 80%;
-            height: 130vh;
-            margin: auto;
-            background-color: #f9f9f9;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-
-        .left-panel {
-            width: 50%;
-            padding: 65px;
-        }
-
-        .right-panel {
-            width: 50%;
-            padding: 65px;
-        }
-
 
         .painel-container {
           display: flex;
@@ -129,29 +87,62 @@ if ($resultInativos && $row = $resultInativos->fetch_assoc()) {
           box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
         }
 
+        .custom-logout {
+          color: #dc3545; /* vermelho */
+          border: 1px solid transparent;
+          padding: 5px 10px;
+          border-radius: 4px;
+          transition: all 0.3s ease;
+        }
+
+        .custom-logout:hover {
+          border: 1px solid #dc3545;
+          background-color: transparent;
+          color: #dc3545;
+        }
+
     </style>
 </head>
 <body>
 <!-- Menu Hambúrguer -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand"><img src="logo_Unitech.png" alt="Logo da escola" class="navbar-logo"></a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="index.php">Início</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="cadastro_aluno.php">Cadastrar Alunos</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="listar_alunos.php">Matriculas</a>
-        </li>
-      </ul>
-    </div>
-  </nav>
+  <a class="navbar-brand"><img src="logo_Unitech.png" alt="Logo da escola" class="navbar-logo"></a>
+  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link active" href="index.php">Início</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="cadastro_aluno.php">Cadastrar Alunos</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="listar_alunos.php">Matrículas</a>
+      </li>
+    </ul>
+
+    <ul class="navbar-nav ms-auto me-3"> <!-- me-3 afasta da borda direita -->
+  <li class="nav-item">
+    <a class="nav-link logout-btn text-danger" href="logout.php">Sair</a>
+  </li>
+    </ul>
+  </div>
+</nav>
+
+<?php
+
+// Mensagem de boas vindas ao usuario
+$usuario = isset($_SESSION['email']) ? $_SESSION['email'] : 'Usuário';
+?>
+
+<div id="mensagemBoasVindas" class="alert alert-success text-center" role="alert">
+  Bem-vindo ao sistema da Unitech, <strong><?= htmlspecialchars($usuario) ?></strong>!
+</div>
+
+<br><br>
 
   <h2 class="text-center">Painel Principal</h2>
 <div class="painel-container">
@@ -163,7 +154,7 @@ if ($resultInativos && $row = $resultInativos->fetch_assoc()) {
     <a href="cursos_turmas.php" class="painel-card">
       <h3>Gerenciar Cursos e Turmas</h3>
     </a>
-    <a href="editar.php" class="painel-card">
+    <a href="gerenciar_alunos.php" class="painel-card">
       <h3>Listar Alunos</h3>
     </a>
   </div>
@@ -179,6 +170,16 @@ if ($resultInativos && $row = $resultInativos->fetch_assoc()) {
   </div>
 </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+  src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+
+  // Esconde a mensagem após 7 segundos (7000 ms)
+setTimeout(function() {
+  const mensagem = document.getElementById('mensagemBoasVindas');
+  if (mensagem) {
+    mensagem.style.display = 'none';
+  }
+}, 7000);
+  </script>
 </body>
 </html>

@@ -1,4 +1,8 @@
 <?php
+
+include 'verificar_sessao.php'; // Inclui a verificação
+verificarSessao(); // Verifica se o usuário está autenticado
+
 include('conexao.php');
 
 $mensagem = "";
@@ -12,6 +16,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $curso_id = !empty($_POST['curso_id']) ? $_POST['curso_id'] : NULL;
 
         $stmt = $conexao->prepare("INSERT INTO turmas (nome, tipo_ensino, periodo, curso_id) VALUES (?, ?, ?, ?)");
+        if (!$stmt) {
+            die("Erro no prepare: " . $conexao->error);
+        }
+        
+        // Corrigindo o bind_param para o tipo adequado
         $stmt->bind_param("sssi", $nome, $tipo_ensino, $periodo, $curso_id);
 
         if ($stmt->execute()) {
@@ -40,12 +49,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-// Buscar cursos para o select do formulário de turmas
+// Consulta para exibir os cursos disponíveis
 $cursos = [];
 $result = $conexao->query("SELECT id, nome FROM cursos");
-while ($row = $result->fetch_assoc()) {
-    $cursos[] = $row;
+
+if ($result) {
+    while ($curso = $result->fetch_assoc()) {
+        $cursos[] = $curso;
+    }
+} else {
+    echo "<option disabled>Erro ao carregar cursos</option>";
+    echo "<!-- Erro: " . $conexao->error . " -->";
 }
+
 $conexao->close();
 ?>
 
@@ -58,72 +74,72 @@ $conexao->close();
     <link href="style.css"  rel="stylesheet">
     <style>
     body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f0f2f5;
-  margin: 0;
-  padding: 30px 0;
-}
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f0f2f5;
+        margin: 0;
+        padding: 30px 0;
+    }
 
-form {
-  margin-bottom: 20px;
-}
+    form {
+        margin-bottom: 20px;
+    }
 
-label {
-  display: block;
-  margin: 12px 0 6px;
-  font-weight: 600;
-  color: #333;
-}
+    label {
+        display: block;
+        margin: 12px 0 6px;
+        font-weight: 600;
+        color: #333;
+    }
 
-input, select {
-  width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  margin-bottom: 15px;
-  border: 1px solid #ccc;
-  background-color: #fff;
-  transition: border-color 0.3s;
-}
+    input, select {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        background-color: #fff;
+        transition: border-color 0.3s;
+    }
 
-input:focus, select:focus {
-  border-color: #4CAF50;
-  outline: none;
-  box-shadow: 0 0 5px rgba(76, 175, 80, 0.2);
-}
+    input:focus, select:focus {
+        border-color: #4CAF50;
+        outline: none;
+        box-shadow: 0 0 5px rgba(76, 175, 80, 0.2);
+    }
 
-button {
-  padding: 12px 20px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
-  letter-spacing: 0.5px;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
-}
+    button {
+        padding: 12px 20px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+    }
 
-button:hover {
-  background-color: #45a049;
-  transform: translateY(-2px);
-}
+    button:hover {
+        background-color: #45a049;
+        transform: translateY(-2px);
+    }
 
-.main-container {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 30px;
-  padding: 30px;
-  flex-wrap: wrap; /* Para evitar que estourem em telas menores */
-}
+    .main-container {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 30px;
+        padding: 30px;
+        flex-wrap: wrap;
+    }
 
-.form-box {
-  width: 480px;
-  background-color: #ffffff;
-  padding: 30px 40px;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-}
+    .form-box {
+        width: 480px;
+        background-color: #ffffff;
+        padding: 30px 40px;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
 
     </style>
 </head>
@@ -206,8 +222,7 @@ button:hover {
 
         <button type="submit">Cadastrar Curso</button>
     </form>
-</div>
-
+  </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
